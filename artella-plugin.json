@@ -1,0 +1,13 @@
+{
+    "menu": {
+        "id": "artella-plugins-updater",
+        "command": "import artella; plug = artella.PluginsMgr().get_plugin_by_id('artella-plugins-updater'); plug.updater()",
+        "tags": ["artella", "updater", "plugin", "version"],
+        "label": "Updater",
+        "parents": []
+    },
+    "name": "Updater",
+    "package": "Artella",
+    "resources": "resources",
+    "icon": "updater.png"
+}
