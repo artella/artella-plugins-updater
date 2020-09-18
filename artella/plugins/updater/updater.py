@@ -9,7 +9,7 @@ from __future__ import print_function, division, absolute_import
 
 import logging
 
-from artella.core import plugin
+from artella.core import plugin, qtutils
 
 logger = logging.getLogger('artella')
 
@@ -36,5 +36,11 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
 
         from artella.plugins.updater.widgets import updater
 
+        if not qtutils.QT_AVAILABLE:
+            logger.warning('Updater UI cannot be launched because Qt is not available!')
+            return False
+
         updater_window = updater.UpdaterWindow()
         updater_window.show()
+
+        return True

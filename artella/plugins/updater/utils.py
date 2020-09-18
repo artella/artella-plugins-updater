@@ -21,9 +21,10 @@ except ImportError:
     from urllib import urlencode
     from urllib2 import urlopen, Request, HTTPError, URLError
 
-import artella
+from artella.core import qtutils
 
-from artella.externals.Qt import QtCore
+if qtutils.QT_AVAILABLE:
+    from artella.externals.Qt import QtCore
 
 logger = logging.getLogger('artella')
 
@@ -130,80 +131,81 @@ def download_and_extract_package_from_pypi(url, file_path, install_path, max_ret
     return True
 
 
-class UpdatePluginWorker(QtCore.QObject, object):
+if qtutils.QT_AVAILABLE:
+    class UpdatePluginWorker(QtCore.QObject, object):
 
-    updateStart = QtCore.Signal()
-    updateFinish = QtCore.Signal(str)
+        updateStart = QtCore.Signal()
+        updateFinish = QtCore.Signal(str)
 
-    def __init__(self):
-        super(UpdatePluginWorker, self).__init__()
+        def __init__(self):
+            super(UpdatePluginWorker, self).__init__()
 
-        self.id = None
-        self._package = None
-        self._latest_version = None
-        self._url = None
-        self._install_path = None
-        self._max_retries = 10
+            self.id = None
+            self._package = None
+            self._latest_version = None
+            self._url = None
+            self._install_path = None
+            self._max_retries = 10
 
-    def set_id(self, id):
-        self._id = id
+        def set_id(self, id):
+            self._id = id
 
-    def set_package(self, package):
-        self._package = package
+        def set_package(self, package):
+            self._package = package
 
-    def set_latest_version(self, latest_version):
-        self._latest_version = latest_version
+        def set_latest_version(self, latest_version):
+            self._latest_version = latest_version
 
-    def set_url(self, url):
-        self._url = url
+        def set_url(self, url):
+            self._url = url
 
-    def set_install_path(self, install_path):
-        self._install_path = install_path
+        def set_install_path(self, install_path):
+            self._install_path = install_path
 
-    def set_max_retries(self, value):
-        self._max_retries = value
+        def set_max_retries(self, value):
+            self._max_retries = value
 
-    def run(self):
-        self.updateStart.emit()
+        def run(self):
+            self.updateStart.emit()
 
-        if not self._url or not self._url.endswith('.tar.gz'):
-            error_msg = 'Plugin Package URL does not contains a .tar.gaz file ({} | {} | {}'.format(
-                self._id, self._latest_version, self._url)
-            self.updateFinish.emit(error_msg)
-            return
-
-        # TODO: We should download to a temporal folder and once everything is extracted we should move the info to
-        # TODO: its proper place
-
-        base_file_name = '{}_{}'.format(self._id, self._latest_version)
-        file_name = '{}.tar.gz'.format(base_file_name)
-        file_path = os.path.join(self._install_path, file_name)
-
-        try:
-            valid = download_and_extract_package_from_pypi(
-                self._url, file_path, self._install_path, max_retries=self._max_retries)
-            if not valid:
-                error_msg = 'Impossible to download and extract plugin from PyPI server ({} | {} | {})'.format(
+            if not self._url or not self._url.endswith('.tar.gz'):
+                error_msg = 'Plugin Package URL does not contains a .tar.gaz file ({} | {} | {}'.format(
                     self._id, self._latest_version, self._url)
                 self.updateFinish.emit(error_msg)
                 return
-        except Exception as exc:
-            error_msg = 'Error while downloading new plugin version from PyPI server ({} | {} | {} | {})'.format(
-                    self._id, self._latest_version, self._url, exc)
-            self.updateFinish.emit(error_msg)
-            return False
 
-        plugin_folder = None
-        for root, dirs, files in os.walk(self._install_path):
-            for plugin_dir in dirs:
-                if plugin_dir == self._package or plugin_dir == self._package.lower():
-                    plugin_folder = os.path.join(root, plugin_dir)
-                    break
+            # TODO: We should download to a temporal folder and once everything is extracted we should move the info to
+            # TODO: its proper place
 
-        if not plugin_folder or not os.path.isdir(plugin_folder):
-            error_msg = 'No Plugin folder found ({}) in the extracted Plugin data ({} | {})'.format(
-                self._package, self._id, self._latest_version)
-            self.updateFinish.emit(error_msg)
-            return
+            base_file_name = '{}_{}'.format(self._id, self._latest_version)
+            file_name = '{}.tar.gz'.format(base_file_name)
+            file_path = os.path.join(self._install_path, file_name)
 
-        self.updateFinish.emit('')
+            try:
+                valid = download_and_extract_package_from_pypi(
+                    self._url, file_path, self._install_path, max_retries=self._max_retries)
+                if not valid:
+                    error_msg = 'Impossible to download and extract plugin from PyPI server ({} | {} | {})'.format(
+                        self._id, self._latest_version, self._url)
+                    self.updateFinish.emit(error_msg)
+                    return
+            except Exception as exc:
+                error_msg = 'Error while downloading new plugin version from PyPI server ({} | {} | {} | {})'.format(
+                        self._id, self._latest_version, self._url, exc)
+                self.updateFinish.emit(error_msg)
+                return False
+
+            plugin_folder = None
+            for root, dirs, files in os.walk(self._install_path):
+                for plugin_dir in dirs:
+                    if plugin_dir == self._package or plugin_dir == self._package.lower():
+                        plugin_folder = os.path.join(root, plugin_dir)
+                        break
+
+            if not plugin_folder or not os.path.isdir(plugin_folder):
+                error_msg = 'No Plugin folder found ({}) in the extracted Plugin data ({} | {})'.format(
+                    self._package, self._id, self._latest_version)
+                self.updateFinish.emit(error_msg)
+                return
+
+            self.updateFinish.emit('')
