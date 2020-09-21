@@ -6,6 +6,7 @@ Module that contains utils functions for Artella Updater
 """
 
 import os
+import sys
 import math
 import json
 import logging
@@ -21,7 +22,8 @@ except ImportError:
     from urllib import urlencode
     from urllib2 import urlopen, Request, HTTPError, URLError
 
-from artella.core import qtutils
+import artella.dcc as dcc
+from artella.core import qtutils, utils
 
 if qtutils.QT_AVAILABLE:
     from artella.externals.Qt import QtCore
@@ -129,6 +131,95 @@ def download_and_extract_package_from_pypi(url, file_path, install_path, max_ret
         return False
 
     return True
+
+
+def get_latest_stable_artella_dcc_plugin_info(dcc_name=None, platform=None, show_dialogs=False):
+    """
+    Returns plugin info data from Artella server
+
+    :param str dcc_name: name of the DCC plugin we want to retrieve to retrieve info from. If not give current DCC
+        will be used
+    :param str platform: name of the OS platform we want to retrieve DCC plugin of (windows, darwin and linux)
+    :return: Dictionary containing plugin info data
+    :rtype: dict
+    """
+
+    dcc_plugin_info = dict()
+    message_title = 'Impossible to retrieve version info'
+
+    dcc_name = dcc_name or dcc.name()
+
+    current_platform = platform or None
+    if not current_platform:
+        if utils.is_windows():
+            current_platform = 'windows'
+        elif utils.is_mac():
+            current_platform = 'darwin'
+        elif utils.is_linux():
+            current_platform = 'linux'
+    if not current_platform:
+        msg = 'Impossible to retrieve Dcc plugin info from Artella server because ' \
+              'current OS platform is not supported: "{}"'.format(sys.platform)
+        logger.warning(msg)
+        if show_dialogs:
+            qtutils.show_warning_message_box(message_title, msg)
+        return dcc_plugin_info
+
+    artella_url = 'https://updates.artellaapp.com/plugins/{}/versions/stable-{}.json'.format(dcc_name, current_platform)
+    req = Request(artella_url)
+
+    rsp = None
+    try:
+        rsp = urlopen(req)
+    except URLError as exc:
+        if hasattr(exc, 'reason'):
+            msg = 'Failed to retrieve Artella DCC plugin info ¨{}({})" from  Artella server ({}): "{}"'.format(
+                dcc_name, current_platform, artella_url, exc.reason)
+        elif hasattr(exc, 'code'):
+            msg = 'Failed to retrieve Artella DCC plugin info ¨{}({})" from  Artella server ({}): "{}"'.format(
+                dcc_name, current_platform, artella_url, exc.code)
+        else:
+            msg = exc
+        logger.debug(exc)
+        logger.error(msg)
+        if show_dialogs:
+            qtutils.show_error_message_box(message_title, msg)
+
+    warning_message = 'Was not possible to retrieve DCC Artella plugin info ¨{}({})" from  Artella server'.format(
+        dcc_name, current_platform)
+
+    if not rsp:
+        if show_dialogs:
+            qtutils.show_warning_message_box(message_title, warning_message)
+        return dcc_plugin_info
+
+    artella_rsp = rsp.read()
+    if not artella_rsp:
+        if show_dialogs:
+            qtutils.show_warning_message_box(message_title, warning_message)
+        return dcc_plugin_info
+
+    try:
+        dcc_plugin_data = json.loads(artella_rsp)
+    except Exception as exc:
+        msg = 'Error while reading data from Artella DCC plugin info ¨{}({})": {}'.format(
+            dcc_name, current_platform, exc)
+        logger.error(msg)
+        if show_dialogs:
+            qtutils.show_error_message_box(message_title, msg)
+        return dcc_plugin_info
+
+    if not dcc_plugin_data:
+        if show_dialogs:
+            qtutils.show_warning_message_box(message_title, warning_message)
+        return dcc_plugin_info
+
+    dcc_plugin_info['platform'] = dcc_plugin_data.get('platform', '')
+    dcc_plugin_info['version'] = dcc_plugin_data.get('version', '0.0.0')
+    dcc_plugin_info['file_name'] = dcc_plugin_data.get('file_name', '')
+    dcc_plugin_info['url'] = dcc_plugin_data.get('url', '')
+
+    return dcc_plugin_info
 
 
 if qtutils.QT_AVAILABLE:
