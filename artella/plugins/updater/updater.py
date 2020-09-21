@@ -9,6 +9,7 @@ from __future__ import print_function, division, absolute_import
 
 import logging
 
+import artella
 from artella.core import plugin, qtutils
 
 logger = logging.getLogger('artella')
@@ -27,7 +28,20 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
         Shows UI informing the user if there is available or not a new version of the DCC plugin to download
         """
 
-        print('Checking for Updates ...')
+        from artella.plugins.updater import utils
+        from artella.plugins.updater.widgets import versioninfo
+
+        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=True)
+        if not latest_release_info:
+            return False
+
+        current_version = artella.DccPlugin().get_version()
+
+        about_dialog = versioninfo.VersionInfoDialog(
+            current_version=current_version, latest_release_info=latest_release_info)
+        about_dialog.exec_()
+
+        return True
 
     def updater(self):
         """
