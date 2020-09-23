@@ -88,13 +88,13 @@ class VersionInfoDialog(artella.Dialog, object):
                 QtCore.QSize(30, 30), QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
             self._version_message_label.setText('Artella {} Plugin is updated!'.format(dcc.nice_name()))
         else:
-            icon_pixmap = (artella.ResourcesMgr().pixmap('success') or QtGui.QPixmap()).scaled(
+            icon_pixmap = (artella.ResourcesMgr().pixmap('info') or QtGui.QPixmap()).scaled(
                 QtCore.QSize(30, 30), QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
             self._version_icon.setPixmap(icon_pixmap)
-            self._version_message_label.setText('Artella {} Plugin is updated!'.format(dcc.nice_name()))
+            self._version_message_label.setText('New Artella {} Plugin is available!'.format(dcc.nice_name()))
 
         self._version_icon.setPixmap(icon_pixmap)
-
+        self._go_to_download_web_btn.setVisible(not is_greater_version)
         latest_version = self._latest_release_info.get('version', 'Undefined')
         self._current_version_label.setText(str(self._current_version or 'Undefined'))
         self._latest_version_label.setText(latest_version)
