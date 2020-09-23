@@ -58,3 +58,35 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
         updater_window.show()
 
         return True
+
+    def update_is_available(self):
+        """
+        Returns whether or not a new Artella DCC plugin version is available to download
+        :return:
+        """
+
+        from artella.plugins.updater import utils
+
+        current_version = artella.DccPlugin().get_version()
+        if not current_version:
+            return True
+        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=True)
+        if not latest_release_info:
+            return True
+        latest_version = latest_release_info.get('version', None)
+        if not latest_version:
+            return True
+
+        current_version_split = current_version.split('.')
+        latest_version_split = latest_version.split('.')
+
+        if latest_version_split[0] > current_version_split[0]:
+            return True
+        else:
+            if latest_version_split[1] > current_version_split[1]:
+                return True
+            else:
+                if latest_version_split[2] > latest_version_split[2]:
+                    return True
+
+        return False
