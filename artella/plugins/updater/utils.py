@@ -6,6 +6,7 @@ Module that contains utils functions for Artella Updater
 """
 
 import os
+import ssl
 import sys
 import math
 import json
@@ -168,9 +169,13 @@ def get_latest_stable_artella_dcc_plugin_info(dcc_name=None, platform=None, show
     artella_url = 'https://updates.artellaapp.com/plugins/{}/versions/stable-{}.json'.format(dcc_name, current_platform)
     req = Request(artella_url)
 
+    ssl._create_default_https_context = ssl._create_unverified_context
+
     rsp = None
     try:
-        rsp = urlopen(req)
+        # To avoid [SSL: CERTIFICATE_VERIFY_FAILED] errors.
+        context = ssl._create_unverified_context()
+        rsp = urlopen(req, context=context)
     except URLError as exc:
         if hasattr(exc, 'reason'):
             msg = 'Failed to retrieve Artella DCC plugin info ¨{}({})" from  Artella server ({}): "{}"'.format(
