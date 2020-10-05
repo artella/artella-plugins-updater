@@ -23,7 +23,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
     def __init__(self, config_dict=None, manager=None):
         super(UpdaterPlugin, self).__init__(config_dict=config_dict, manager=manager)
 
-    def check_for_updates(self):
+    def check_for_updates(self, show_dialogs=True):
         """
         Shows UI informing the user if there is available or not a new version of the DCC plugin to download
         """
@@ -31,7 +31,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
         from artella.plugins.updater import utils
         from artella.plugins.updater.widgets import versioninfo
 
-        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=True)
+        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=show_dialogs)
         if not latest_release_info:
             return False
 
@@ -59,7 +59,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
 
         return True
 
-    def update_is_available(self):
+    def update_is_available(self, show_dialogs=True):
         """
         Returns whether or not a new Artella DCC plugin version is available to download
         :return:
@@ -70,7 +70,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
         current_version = artella.DccPlugin().get_version()
         if not current_version:
             return True
-        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=True)
+        latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=show_dialogs)
         if not latest_release_info:
             return True
         latest_version = latest_release_info.get('version', None)
