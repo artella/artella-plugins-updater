@@ -9,8 +9,7 @@ from __future__ import print_function, division, absolute_import
 
 import logging
 
-import artella
-from artella.core import plugin, qtutils
+from artella.core import plugin, qtutils, dccplugin
 
 logger = logging.getLogger('artella')
 
@@ -35,7 +34,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
         if not latest_release_info:
             return False
 
-        current_version = artella.DccPlugin().get_version()
+        current_version = dccplugin.DccPlugin().get_version()
 
         about_dialog = versioninfo.VersionInfoDialog(
             current_version=current_version, latest_release_info=latest_release_info)
@@ -67,7 +66,7 @@ class UpdaterPlugin(plugin.ArtellaPlugin, object):
 
         from artella.plugins.updater import utils
 
-        current_version = artella.DccPlugin().get_version()
+        current_version = dccplugin.DccPlugin().get_version()
         if not current_version:
             return True
         latest_release_info = utils.get_latest_stable_artella_dcc_plugin_info(show_dialogs=show_dialogs)

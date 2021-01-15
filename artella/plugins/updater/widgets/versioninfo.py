@@ -8,9 +8,9 @@ Module that contains Updater version info widget implementation
 import logging
 import webbrowser
 
-import artella
 import artella.dcc as dcc
-from artella.core import qtutils
+from artella.core import qtutils, resource
+from artella.core.dcc import dialog
 
 if qtutils.QT_AVAILABLE:
     from artella.externals.Qt import QtCore, QtWidgets, QtGui
@@ -18,7 +18,7 @@ if qtutils.QT_AVAILABLE:
 logger = logging.getLogger('artella')
 
 
-class VersionInfoDialog(artella.Dialog, object):
+class VersionInfoDialog(dialog.Dialog(), object):
     def __init__(self, current_version, latest_release_info, parent=None, **kwargs):
         super(VersionInfoDialog, self).__init__(parent, **kwargs)
 
@@ -26,6 +26,7 @@ class VersionInfoDialog(artella.Dialog, object):
         self._latest_release_info = latest_release_info
 
         self.setWindowTitle('Updater - Version Checker')
+        self.setWindowIcon(resource.icon('artella'))
 
         self._fill_data()
 
@@ -84,11 +85,11 @@ class VersionInfoDialog(artella.Dialog, object):
         is_greater_version = self._is_greater_version()
 
         if is_greater_version:
-            icon_pixmap = (artella.ResourcesMgr().pixmap('success') or QtGui.QPixmap()).scaled(
+            icon_pixmap = (resource.pixmap('success') or QtGui.QPixmap()).scaled(
                 QtCore.QSize(30, 30), QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
             self._version_message_label.setText('Artella {} Plugin is updated!'.format(dcc.nice_name()))
         else:
-            icon_pixmap = (artella.ResourcesMgr().pixmap('info') or QtGui.QPixmap()).scaled(
+            icon_pixmap = (resource.pixmap('info') or QtGui.QPixmap()).scaled(
                 QtCore.QSize(30, 30), QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
             self._version_icon.setPixmap(icon_pixmap)
             self._version_message_label.setText('New Artella {} Plugin is available!'.format(dcc.nice_name()))

@@ -11,8 +11,7 @@ import os
 import logging
 import importlib
 
-import artella
-from artella.core import splash, qtutils
+from artella.core import splash, qtutils, resource
 from artella.plugins.updater import utils
 
 
@@ -43,7 +42,7 @@ if qtutils.QT_AVAILABLE:
             self._size = size
             self._url = url
 
-            icon_pixmap = (icon_pixmap or artella.ResourcesMgr().pixmap('artella') or QtGui.QPixmap()).scaled(
+            icon_pixmap = (icon_pixmap or resource.pixmap('artella') or QtGui.QPixmap()).scaled(
                 QtCore.QSize(30, 30), QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
 
             self.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -120,7 +119,7 @@ if qtutils.QT_AVAILABLE:
             self._progress = splash.ProgressCricle(width=80)
             self._progress_text = QtWidgets.QLabel('Wait please ...')
             self._ok_label = QtWidgets.QLabel()
-            self._ok_label.setPixmap(artella.ResourcesMgr().pixmap('success'))
+            self._ok_label.setPixmap(resource.pixmap('success'))
             self._update_button = QtWidgets.QPushButton()
             self._progress.setVisible(False)
             self._progress_text.setVisible(False)

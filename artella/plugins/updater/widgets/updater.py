@@ -10,9 +10,9 @@ from __future__ import print_function, division, absolute_import
 import os
 import logging
 
-import artella
-import artella.dcc as dcc
-from artella.core import qtutils, utils as core_utils
+from artella import dcc
+from artella.core import qtutils, plugins, utils as core_utils
+from artella.core.dcc import window
 from artella.plugins.updater import utils
 
 if qtutils.QT_AVAILABLE:
@@ -24,7 +24,7 @@ logger = logging.getLogger('artella')
 
 
 if qtutils.QT_AVAILABLE:
-    class UpdaterWindow(artella.Window, object):
+    class UpdaterWindow(window.Window, object):
         def __init__(self, parent=None, **kwargs):
             super(UpdaterWindow, self).__init__(parent, **kwargs)
 
@@ -114,8 +114,8 @@ if qtutils.QT_AVAILABLE:
                                     dcc_plugins.append(plugin_id)
             dcc_plugins = list(set(dcc_plugins))
 
-            plugins = artella.PluginsMgr().plugins
-            for plugin_id, plugin_data in plugins.items():
+            all_plugins = plugins.plugins()
+            for plugin_id, plugin_data in all_plugins.items():
 
                 plugin_name = plugin_data['name']
                 plugin_icon_name = plugin_data.get('icon', None)
