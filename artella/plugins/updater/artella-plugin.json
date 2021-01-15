@@ -1,7 +1,7 @@
 {
     "menu": {
         "id": "artella-plugins-updater",
-        "command": "import artella; plug = artella.PluginsMgr().get_plugin_by_id('artella-plugins-updater'); plug.check_for_updates()",
+        "command": "from artella.core import plugins; plug = plugins.get_plugin_by_id('artella-plugins-updater'); plug.check_for_updates()",
         "tags": ["artella", "updater", "plugin", "version"],
         "label": "Check for Updates",
         "parents": ["More Artella"]
